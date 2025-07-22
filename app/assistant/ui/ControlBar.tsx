@@ -1,0 +1,110 @@
+import { ViewStyle, StyleSheet, View, Image, TouchableOpacity, StyleProp } from "react-native"
+
+type ControlBarProps = {
+  style?: StyleProp<ViewStyle>,
+  options: ControlBarOptions,
+}
+
+type ControlBarOptions = {
+  isMicEnabled: boolean,
+  onMicClick: () => void,
+  isCameraEnabled: boolean,
+  onCameraClick: () => void,
+  isScreenShareEnabled: Boolean,
+  onScreenShareClick: () => void,
+  isChatEnabled: Boolean,
+  onChatClick: () => void,
+  onExitClick: () => void,
+}
+
+export default function ControlBar({
+  style = {},
+  options,
+}: ControlBarProps) {
+
+  // Images
+  var micImage = options.isMicEnabled
+    ? require('@/assets/images/mic_24dp.png')
+    : require('@/assets/images/mic_off_24dp.png');
+  var cameraImage = options.isCameraEnabled
+    ? require('@/assets/images/videocam_24dp.png')
+    : require('@/assets/images/videocam_off_24dp.png');
+  var screenShareImage = options.isScreenShareEnabled
+    ? require('@/assets/images/present_to_all_24dp.png')
+    : require('@/assets/images/present_to_all_off_24dp.png');
+  var chatImage = options.isChatEnabled
+    ? require('@/assets/images/chat_24dp.png')
+    : require('@/assets/images/chat_off_24dp.png');
+  var exitImage = require('@/assets/images/call_end_24dp.png');
+
+  return (
+    <View style={[style, styles.container]}>
+
+      <TouchableOpacity
+        style={[styles.button, options.isMicEnabled ? styles.enabledButton : undefined] }
+        activeOpacity={0.7}
+        onPress={() => options.onMicClick()}
+      >
+        <Image style={styles.icon} source={micImage} />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.button, options.isCameraEnabled ? styles.enabledButton : undefined] }
+        activeOpacity={0.7}
+        onPress={() => options.onCameraClick()}
+      >
+        <Image style={styles.icon} source={cameraImage} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, options.isScreenShareEnabled ? styles.enabledButton : undefined] }
+        activeOpacity={0.7}
+        onPress={() => options.onScreenShareClick()}
+      >
+        <Image style={styles.icon} source={screenShareImage} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.button, options.isChatEnabled ? styles.enabledButton : undefined] }
+        activeOpacity={0.7}
+        onPress={() => options.onChatClick()}
+      >
+        <Image style={styles.icon} source={chatImage} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        activeOpacity={0.7}
+        onPress={() => options.onExitClick()}
+      >
+        <Image style={styles.icon} source={exitImage} />
+      </TouchableOpacity>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+
+  container: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    paddingHorizontal: 8,
+    backgroundColor: '#070707',
+    borderColor: '#202020',
+    borderRadius: 53,
+    borderWidth: 1,
+  },
+  button: {
+    flex: 1,
+    height: 44,
+    padding: 10,
+    marginHorizontal: 4,
+    marginVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  enabledButton: {
+    backgroundColor: '#131313',
+  },
+  icon: {
+    width: 20,
+  },
+});

@@ -1,29 +1,31 @@
 import {
+  Animated,
+  Dimensions,
   StyleSheet,
+  useAnimatedValue,
   View,
-  Text,
-  useColorScheme,
-  Image,
-  Pressable,
-  ScrollView,
+  ViewStyle,
 } from 'react-native';
 
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   AudioSession,
-  BarVisualizer,
   LiveKitRoom,
   useIOSAudioManagement,
   useLocalParticipant,
   useParticipantTracks,
   useRoomContext,
-  useTrackTranscription,
-  useVoiceAssistant,
+  VideoTrack,
 } from '@livekit/react-native';
 import { useConnectionDetails } from '@/hooks/useConnectionDetails';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Track } from 'livekit-client';
 import { useRouter } from 'expo-router';
+import ControlBar from './ui/ControlBar';
+import ChatBar from './ui/ChatBar';
+import ChatLog from './ui/ChatLog';
+import AgentVisualization from './ui/AgentVisualization';
+import useDataStreamTranscriptions from '@/hooks/useDataStreamTranscriptions';
+import { Track } from 'livekit-client';
 
 export default function AssistantScreen() {
   // Start the audio session first.
@@ -61,180 +63,315 @@ const RoomView = () => {
   const room = useRoomContext();
   useIOSAudioManagement(room, true);
 
-  const { isMicrophoneEnabled, localParticipant } = useLocalParticipant();
+  const { 
+    isMicrophoneEnabled,
+    isCameraEnabled,
+    isScreenShareEnabled,
+    cameraTrack: localCameraTrack,
+    localParticipant
+  } = useLocalParticipant();
+  const localParticipantIdentity = localParticipant.identity;
+
+  const localScreenShareTrack = useParticipantTracks([Track.Source.ScreenShare], localParticipantIdentity);
+
+  const localVideoTrack = localCameraTrack && isCameraEnabled ? {
+      participant: localParticipant,
+      publication: localCameraTrack,
+      source: Track.Source.Camera,
+    } :
+    localScreenShareTrack.length > 0 && isScreenShareEnabled ? localScreenShareTrack[0] :
+    null;
 
   // Transcriptions
-  const localTracks = useParticipantTracks(
-    [Track.Source.Microphone],
-    localParticipant.identity
-  );
-  const { segments: userTranscriptions } = useTrackTranscription(
-    localTracks[0]
-  );
+  const transcriptionState = useDataStreamTranscriptions();
+  const addTranscription = transcriptionState.addTranscription;
+  const [isChatEnabled, setChatEnabled] = useState(false);
+  const [chatMessage, setChatMessage] = useState('');
 
-  const { agentTranscriptions } = useVoiceAssistant();
+  const onChatSend = useCallback((message: string) => {
+    addTranscription(localParticipantIdentity, message);
+    setChatMessage('');
+  }, [localParticipantIdentity, addTranscription, setChatMessage])
 
-  const lastUserTranscription = (
-    userTranscriptions.length > 0
-      ? userTranscriptions[userTranscriptions.length - 1].text
-      : ''
-  ) as string;
-  const lastAgentTranscription = (
-    agentTranscriptions.length > 0
-      ? agentTranscriptions[agentTranscriptions.length - 1].text
-      : ''
-  ) as string;
+  // Control callbacks
+  const onMicClick = useCallback(() => {
+    localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled)
+  }, [isMicrophoneEnabled, localParticipant]);
+  const onCameraClick = useCallback(() => {
+    localParticipant.setCameraEnabled(!isCameraEnabled)
+  }, [isCameraEnabled, localParticipant]);
+  const onScreenShareClick = useCallback(() => {
+    localParticipant.setScreenShareEnabled(!isScreenShareEnabled)
+  }, [isScreenShareEnabled, localParticipant]);
+  const onChatClick = useCallback(() => {
+    setChatEnabled(!isChatEnabled)
+  }, [isChatEnabled, setChatEnabled]);
+  const onExitClick = useCallback(() => {
+    router.back();
+  }, [router]);
 
-  // Controls
-  var micImage = isMicrophoneEnabled
-    ? require('../../assets/images/baseline_mic_white_24dp.png')
-    : require('../../assets/images/baseline_mic_off_white_24dp.png');
+  // Layout positioning
+  const [containerWidth, setContainerWidth] = useState(Dimensions.get('window').width);
+  const [containerHeight, setContainerHeight] = useState(Dimensions.get('window').height);
+  const agentVisualizationPosition = useAgentVisualizationPosition(isChatEnabled, isCameraEnabled || isScreenShareEnabled);
+  const localVideoPosition = useLocalVideoPosition(isChatEnabled, {width: containerWidth, height: containerHeight });
 
-  var exitImage = require('../../assets/images/close_white_24dp.png');
+  let localVideoView = localVideoTrack ? (
+      <Animated.View
+        style={[
+          {
+            position: 'absolute',
+            zIndex: 1,
+            ...localVideoPosition
+          }
+        ]}
+      >
+        <VideoTrack
+          trackRef={localVideoTrack}
+          style={styles.video}
+        />
+      </Animated.View>
+  ) : null
 
   return (
-    <View style={styles.container}>
-      <SimpleVoiceAssistant />
-      <ScrollView style={styles.logContainer}>
-        <UserTranscriptionText text={lastUserTranscription} />
-        <AgentTranscriptionText text={lastAgentTranscription} />
-      </ScrollView>
+    <View 
+      style={styles.container}
+      onLayout={(event) => {
+        const {width, height} = event.nativeEvent.layout;
+        setContainerWidth(width);
+        setContainerHeight(height);
+      }}
+    >
+      <View style={styles.spacer} />
+      <ChatLog 
+        style={styles.logContainer}
+        transcriptions={transcriptionState.transcriptions}
+      />
+      <ChatBar
+        style={styles.chatBar}
+        value={chatMessage}
+        onChangeText={(value) => {setChatMessage(value)}}
+        onChatSend={onChatSend}
+      />
 
-      <View style={styles.controlsContainer}>
-        <Pressable
-          style={({ pressed }) => [
-            { backgroundColor: pressed ? 'rgb(210, 230, 255)' : '#007DFF' },
-            styles.button,
-          ]}
-          onPress={() => {
-            localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled);
-          }}
-        >
-          <Image style={styles.icon} source={micImage} />
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [
-            {
-              backgroundColor: pressed ? 'rgb(210, 230, 255)' : '#FF0000',
-            },
-            styles.button,
-          ]}
-          onPress={() => {
-            router.back();
-          }}
-        >
-          <Image style={styles.icon} source={exitImage} />
-        </Pressable>
-      </View>
+      <Animated.View
+        style={[
+          {
+            position: 'absolute',
+            zIndex: 1,
+            backgroundColor:'#000000',
+            ...agentVisualizationPosition,
+          }
+        ]}
+      >
+        <AgentVisualization style={styles.agentVisualization}/>
+      </Animated.View>
+
+      {localVideoView}
+
+      <ControlBar
+        style={styles.controlBar}
+        options={{
+          isMicEnabled: isMicrophoneEnabled,
+          isCameraEnabled,
+          isScreenShareEnabled,
+          isChatEnabled,
+          onMicClick,
+          onCameraClick,
+          onChatClick,
+          onScreenShareClick,
+          onExitClick,
+        }}
+      />
     </View>
   );
 };
 
-const UserTranscriptionText = (props: { text: string }) => {
-  let { text } = props;
-  const colorScheme = useColorScheme();
-  const themeStyle =
-    colorScheme === 'light'
-      ? styles.userTranscriptionLight
-      : styles.userTranscriptionDark;
-  const themeTextStyle =
-    colorScheme === 'light' ? styles.lightThemeText : styles.darkThemeText;
-
-  return (
-    text && (
-      <View style={styles.userTranscriptionContainer}>
-        <Text style={[styles.userTranscription, themeStyle, themeTextStyle]}>
-          {text}
-        </Text>
-      </View>
-    )
-  );
-};
-
-const AgentTranscriptionText = (props: { text: string }) => {
-  let { text } = props;
-  const colorScheme = useColorScheme();
-  const themeTextStyle =
-    colorScheme === 'light' ? styles.lightThemeText : styles.darkThemeText;
-  return (
-    text && (
-      <Text style={[styles.agentTranscription, themeTextStyle]}>{text}</Text>
-    )
-  );
-};
-
-const SimpleVoiceAssistant = () => {
-  const { state, audioTrack } = useVoiceAssistant();
-  return (
-    <BarVisualizer
-      state={state}
-      barCount={7}
-      options={{
-        minHeight: 0.5,
-      }}
-      trackRef={audioTrack}
-      style={styles.voiceAssistant}
-    />
-  );
-};
 const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
     alignItems: 'center',
   },
-  voiceAssistant: {
-    width: '100%',
-    height: 100,
+  spacer: {
+    height: '24%',
   },
   logContainer: {
     width: '100%',
-    flex: 1,
+    flexGrow: 1,
     flexDirection: 'column',
+    marginBottom: 8,
   },
-  controlsContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
+  chatBar: {
+    left: 0,
+    right: 0,
+    marginHorizontal: 16,
+    marginBottom: 16,
   },
-  button: {
-    width: 60,
-    height: 60,
-    padding: 10,
-    margin: 12,
-    borderRadius: 30,
+  controlBar: {
+    left: 0,
+    right: 0,
+    zIndex: 2,
+    marginHorizontal: 16,
+    marginBottom: 8,
   },
-  icon: {
-    width: 40,
-    height: 40,
-  },
-  userTranscriptionContainer: {
+  video: {
     width: '100%',
-    alignContent: 'flex-end',
+    height: '100%',
   },
-  userTranscription: {
-    width: 'auto',
-    fontSize: 18,
-    alignSelf: 'flex-end',
-    borderRadius: 6,
-    padding: 8,
-    margin: 16,
-  },
-  userTranscriptionLight: {
-    backgroundColor: '#B0B0B0',
-  },
-  userTranscriptionDark: {
-    backgroundColor: '#404040',
-  },
-
-  agentTranscription: {
-    fontSize: 20,
-    textAlign: 'left',
-    margin: 16,
-  },
-  lightThemeText: {
-    color: '#000000',
-  },
-  darkThemeText: {
-    color: '#FFFFFF',
+  agentVisualization: {
+    width: '100%',
+    height: '100%',
   },
 });
+
+const expandedAgentWidth = 1;
+const expandedAgentHeight = 1;
+const expandedLocalWidth = .3;
+const expandedLocalHeight = .2;
+const collapsedWidth = .3;
+const collapsedHeight = .2;
+
+const createAnimConfig = (toValue: any) => {
+  return {
+    toValue,
+    stiffness: 200,
+    damping: 30,
+    useNativeDriver: false,
+    isInteraction: false,
+    overshootClamping: true,
+  }
+}
+
+const useAgentVisualizationPosition = (isChatVisible: boolean, hasLocalVideo: boolean) => { 
+  const width = useAnimatedValue(isChatVisible ? collapsedWidth : expandedAgentWidth);
+  const height = useAnimatedValue(isChatVisible ? collapsedHeight : expandedAgentHeight);
+
+  useEffect(() => {
+    const widthAnim = Animated.spring(width, createAnimConfig(isChatVisible ? collapsedWidth : expandedAgentWidth));
+    const heightAnim = Animated.spring(height, createAnimConfig(isChatVisible ? collapsedHeight : expandedAgentHeight));
+
+    widthAnim.start();
+    heightAnim.start();
+
+    return () => {
+      widthAnim.stop();
+      heightAnim.stop();
+    }
+  }, [isChatVisible]);
+
+
+  const x = useAnimatedValue(0);
+  const y = useAnimatedValue(0);
+  useEffect(() => {
+
+    let targetX: number;
+    let targetY: number;
+
+    if (!isChatVisible) {
+      targetX = 0;
+      targetY = 0;
+    } else {
+      if (!hasLocalVideo) {
+        // Just agent visualizer showing in top section.
+        targetX = .5 - collapsedWidth / 2;
+        targetY = 16
+      } else {
+        // Handle agent visualizer showing next to local video.
+        targetX = .32 - collapsedWidth / 2;
+        targetY = 16;
+      }
+    }
+
+    const xAnim = Animated.spring(x, createAnimConfig(targetX))
+    const yAnim = Animated.spring(y, createAnimConfig(targetY))
+
+    xAnim.start();
+    yAnim.start();
+
+    return () => {
+      xAnim.stop();
+      yAnim.stop();
+    }
+  }, [isChatVisible, hasLocalVideo]);
+
+  return {
+    left: x.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    }),
+    top: y, // y is defined in pixels
+    width: width.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    }),
+    height: height.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    })
+  }
+}
+
+const useLocalVideoPosition = (isChatVisible: boolean, containerDimens: { width: number, height: number }): ViewStyle => { 
+  const width = useAnimatedValue(isChatVisible ? collapsedWidth : expandedLocalWidth);
+  const height = useAnimatedValue(isChatVisible ? collapsedHeight : expandedLocalHeight);
+
+  useEffect(() => {
+    const widthAnim = Animated.spring(width, createAnimConfig(isChatVisible ? collapsedWidth : expandedLocalWidth));
+    const heightAnim = Animated.spring(height, createAnimConfig(isChatVisible ? collapsedHeight : expandedLocalHeight));
+
+    widthAnim.start();
+    heightAnim.start();
+
+    return () => {
+      widthAnim.stop();
+      heightAnim.stop();
+    }
+  }, [isChatVisible]);
+
+
+  const x = useAnimatedValue(0);
+  const y = useAnimatedValue(0);
+  useEffect(() => {
+    let targetX: number;
+    let targetY: number;
+
+    if (!isChatVisible) {
+      targetX = 1 - expandedLocalWidth - (16 / containerDimens.width);
+      targetY = 1 - expandedLocalHeight - (106 / containerDimens.height);
+    } else {
+      // Handle agent visualizer showing next to local video.
+      targetX = .66 - collapsedWidth / 2;
+      targetY = 0; // marginTop handles this.
+    }
+
+    const xAnim = Animated.spring(x, createAnimConfig(targetX))
+    const yAnim = Animated.spring(y, createAnimConfig(targetY))
+    xAnim.start();
+    yAnim.start();
+    return () => {
+      xAnim.stop();
+      yAnim.stop();
+    }
+  }, [isChatVisible]);
+
+  return {
+    left: x.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    }),
+    top: y.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    }),
+    width: width.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    }),
+    height: height.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0%', '100%'],
+    }),
+    marginTop: 16,
+  }
+}
