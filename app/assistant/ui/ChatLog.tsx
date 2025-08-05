@@ -30,7 +30,6 @@ export default function ChatLog({
 
 const renderItemTemplate: (localParticipantIdentity: string) => ListRenderItem<Transcription> = (localParticipantIdentity: string) => ({item}) => {
   const isLocalUser = item.identity === localParticipantIdentity
-  console.log(item.segment.text);
   if (isLocalUser) {
     return (
       <UserTranscriptionText text={item.segment.text} />

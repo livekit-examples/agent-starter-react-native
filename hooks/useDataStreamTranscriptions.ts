@@ -59,7 +59,7 @@ export default function useDataStreamTranscriptions(): TranscriptionsState {
         destinationIdentities: [agentIdentity],
       });
     }
-  }, [mergeTranscriptions]);
+  }, [mergeTranscriptions, agentIdentity]);
 
   useEffect(() => {
     room.registerTextStreamHandler("lk.transcription", (
