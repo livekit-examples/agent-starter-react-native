@@ -1,3 +1,6 @@
+import { TrackReference, useEnsureRoom, useLocalParticipant } from "@livekit/components-react";
+import { BarVisualizer } from "@livekit/react-native";
+import { useEffect, useState } from "react";
 import { ViewStyle, StyleSheet, View, Image, TouchableOpacity, StyleProp } from "react-native"
 
 type ControlBarProps = {
@@ -21,6 +24,22 @@ export default function ControlBar({
   style = {},
   options,
 }: ControlBarProps) {
+
+  const room = useEnsureRoom();
+  const { microphoneTrack, localParticipant } = useLocalParticipant();
+  const [trackRef, setTrackRef] = useState<TrackReference | undefined>(undefined);
+
+  useEffect(() => {
+    if (microphoneTrack) {
+      setTrackRef({
+        participant: localParticipant,
+        publication: microphoneTrack,
+        source: microphoneTrack.source,
+      })
+    } else {
+      setTrackRef(undefined)
+    }
+  }, [microphoneTrack, localParticipant])
 
   // Images
   var micImage = options.isMicEnabled
@@ -46,6 +65,16 @@ export default function ControlBar({
         onPress={() => options.onMicClick()}
       >
         <Image style={styles.icon} source={micImage} />
+        <BarVisualizer
+          barCount={3}
+          trackRef={trackRef}
+          style={styles.micVisualizer}
+          options= {{
+            minHeight: 0.1,
+            barColor: '#CCCCCC',
+            barWidth: 2,
+          }}
+        />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -93,6 +122,7 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
+    flexDirection: 'row',
     height: 44,
     padding: 10,
     marginHorizontal: 4,
@@ -107,4 +137,8 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
   },
+  micVisualizer: {
+    width: 20,
+    height: 20,
+  }
 });

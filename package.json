@@ -20,7 +20,7 @@
     "@config-plugins/react-native-webrtc": "12.0.0",
     "@expo/vector-icons": "^14.1.0",
     "@livekit/components-react": "^2.8.1",
-    "@livekit/react-native": "^2.7.3",
+    "@livekit/react-native": "^2.7.6",
     "@livekit/react-native-expo-plugin": "^1.0.1",
     "@livekit/react-native-webrtc": "^125.0.9",
     "@react-navigation/bottom-tabs": "^7.2.0",
