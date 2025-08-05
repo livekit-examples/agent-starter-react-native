@@ -1,4 +1,4 @@
-import { Image, StyleProp, StyleSheet, TextInput, TouchableOpacity, View, ViewStyle } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, StyleProp, StyleSheet, TextInput, TouchableOpacity, View, ViewStyle } from "react-native";
 
 type ChatBarProps = {
   style: StyleProp<ViewStyle>,
@@ -15,30 +15,37 @@ export default function ChatBar({
 }: ChatBarProps) {
 
   return (
-    <View style={[style, styles.container]} >
-      <TextInput 
-        style={[styles.input]}
-        value={value}
-        placeholder={ "Message" }
-        placeholderTextColor={'#666666'}
-        onChangeText={onChangeText}
-        multiline={true}
-      />
-      <TouchableOpacity 
-        style={styles.button}
-        activeOpacity={0.7}
-        onPress={() => onChatSend(value)}
-      >
-        <View>
-          <Image source={require('@/assets/images/arrow_upward_24dp.png')} />
-        </View>
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={[style]}
+      keyboardVerticalOffset={24}
+    >
+      <View style={styles.container}>
+        <TextInput 
+          style={[styles.input]}
+          value={value}
+          placeholder={ "Message" }
+          placeholderTextColor={'#666666'}
+          onChangeText={onChangeText}
+          multiline={true}
+        />
+        <TouchableOpacity 
+          style={styles.button}
+          activeOpacity={0.7}
+          onPress={() => onChatSend(value)}
+        >
+          <View>
+            <Image source={require('@/assets/images/arrow_upward_24dp.png')} />
+          </View>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
+    width: '100%',
     flexDirection: 'row',
     backgroundColor: '#131313',
     borderRadius: 24,
