@@ -1,11 +1,21 @@
-import { Image, KeyboardAvoidingView, Platform, StyleProp, StyleSheet, TextInput, TouchableOpacity, View, ViewStyle } from "react-native";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  StyleProp,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 
 type ChatBarProps = {
-  style: StyleProp<ViewStyle>,
-  value: string,
-  onChangeText: (text: string) => void,
-  onChatSend: (text: string) => void,
-}
+  style: StyleProp<ViewStyle>;
+  value: string;
+  onChangeText: (text: string) => void;
+  onChatSend: (text: string) => void;
+};
 
 export default function ChatBar({
   style,
@@ -13,23 +23,22 @@ export default function ChatBar({
   onChangeText,
   onChatSend,
 }: ChatBarProps) {
-
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={[style]}
       keyboardVerticalOffset={24}
     >
       <View style={styles.container}>
-        <TextInput 
+        <TextInput
           style={[styles.input]}
           value={value}
-          placeholder={ "Message" }
+          placeholder={'Message'}
           placeholderTextColor={'#666666'}
           onChangeText={onChangeText}
           multiline={true}
         />
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.button}
           activeOpacity={0.7}
           onPress={() => onChatSend(value)}
@@ -40,7 +49,7 @@ export default function ChatBar({
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -56,7 +65,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     marginStart: 8,
     marginEnd: 16,
-    color: '#FFFFFF'
+    color: '#FFFFFF',
   },
   button: {
     width: 32,
@@ -65,5 +74,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: '50%',
     backgroundColor: '#666666',
-  }
+  },
 });

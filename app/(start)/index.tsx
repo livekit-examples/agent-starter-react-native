@@ -1,18 +1,27 @@
 import { ConnectionDetails, fetchToken } from '@/hooks/useConnectionDetails';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Button, View, Image, Text, TouchableOpacity, ActivityIndicator, useAnimatedValue, Animated, ViewStyle } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 
 export default function StartScreen() {
   const router = useRouter();
 
   let [isConnecting, setConnecting] = useState(false);
-  let [connectionDetails, setConnectionDetails] = useState<ConnectionDetails | undefined>(undefined)
+  let [connectionDetails, setConnectionDetails] = useState<
+    ConnectionDetails | undefined
+  >(undefined);
 
   // Fetch token when we're connecting.
   useEffect(() => {
-    if(isConnecting) {
-      fetchToken().then(details => {
+    if (isConnecting) {
+      fetchToken().then((details) => {
         console.log(details);
         setConnectionDetails(details);
         if (!details) {
@@ -24,19 +33,19 @@ export default function StartScreen() {
 
   // Navigate to Assistant screen when we have the connection details.
   useEffect(() => {
-    if(isConnecting && connectionDetails) {
+    if (isConnecting && connectionDetails) {
       setConnecting(false);
       setConnectionDetails(undefined);
       router.navigate('../assistant');
     }
-  }, [connectionDetails]);
+  }, [isConnecting, router, connectionDetails]);
 
   let connectText: string;
 
   if (isConnecting) {
-    connectText = "Connecting"
+    connectText = 'Connecting';
   } else {
-    connectText = "Start Voice Assistant"
+    connectText = 'Start Voice Assistant';
   }
 
   return (
@@ -45,22 +54,25 @@ export default function StartScreen() {
         style={styles.logo}
         source={require('../../assets/images/start-logo.png')}
       />
-      <Text style={styles.text}>
-        Chat live with your voice AI agent
-      </Text>
-      
+      <Text style={styles.text}>Chat live with your voice AI agent</Text>
+
       <TouchableOpacity
-        onPress={() => { setConnecting(true) }}
+        onPress={() => {
+          setConnecting(true);
+        }}
         style={styles.button}
         activeOpacity={0.7}
         disabled={isConnecting} // Disable button while loading
       >
-        { isConnecting ? 
-            <ActivityIndicator size="small" color="#ffffff" style={styles.activityIndicator} /> :
-            undefined
-        }
-          
-          <Text style={styles.buttonText}>{connectText}</Text>
+        {isConnecting ? (
+          <ActivityIndicator
+            size="small"
+            color="#ffffff"
+            style={styles.activityIndicator}
+          />
+        ) : undefined}
+
+        <Text style={styles.buttonText}>{connectText}</Text>
       </TouchableOpacity>
     </View>
   );

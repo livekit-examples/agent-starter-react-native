@@ -1,44 +1,46 @@
-import { Transcription } from "@/hooks/useDataStreamTranscriptions";
-import { useLocalParticipant } from "@livekit/components-react";
-import { useCallback } from "react";
-import { ListRenderItem, StyleProp, StyleSheet, Text, useColorScheme, View, ViewStyle } from "react-native";
-import Animated, { LinearTransition } from "react-native-reanimated";
+import { Transcription } from '@/hooks/useDataStreamTranscriptions';
+import { useLocalParticipant } from '@livekit/components-react';
+import { useCallback } from 'react';
+import {
+  ListRenderItemInfo,
+  StyleProp,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+  ViewStyle,
+} from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 
 export type ChatLogProps = {
-  style: StyleProp<ViewStyle>,
-  transcriptions: Transcription[],
-}
-export default function ChatLog({
-  style,
-  transcriptions,
-}: ChatLogProps) {
-
+  style: StyleProp<ViewStyle>;
+  transcriptions: Transcription[];
+};
+export default function ChatLog({ style, transcriptions }: ChatLogProps) {
   const { localParticipant } = useLocalParticipant();
-  const identity = localParticipant.identity;
+  const localParticipantIdentity = localParticipant.identity;
 
-  const renderItem = useCallback(renderItemTemplate(identity), [identity]);
+  const renderItem = useCallback(
+    ({ item }: ListRenderItemInfo<Transcription>) => {
+      const isLocalUser = item.identity === localParticipantIdentity;
+      if (isLocalUser) {
+        return <UserTranscriptionText text={item.segment.text} />;
+      } else {
+        return <AgentTranscriptionText text={item.segment.text} />;
+      }
+    },
+    [localParticipantIdentity]
+  );
+
   return (
-    <Animated.FlatList 
+    <Animated.FlatList
       renderItem={renderItem}
       data={transcriptions}
       style={style}
       inverted={true}
       itemLayoutAnimation={LinearTransition}
     />
-  )
-}
-
-const renderItemTemplate: (localParticipantIdentity: string) => ListRenderItem<Transcription> = (localParticipantIdentity: string) => ({item}) => {
-  const isLocalUser = item.identity === localParticipantIdentity
-  if (isLocalUser) {
-    return (
-      <UserTranscriptionText text={item.segment.text} />
-    )
-  } else {
-    return (
-      <AgentTranscriptionText text={item.segment.text} />
-    )
-  }
+  );
 }
 
 const UserTranscriptionText = (props: { text: string }) => {

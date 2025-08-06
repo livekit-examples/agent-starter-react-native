@@ -1,33 +1,37 @@
-import { TrackReference, useEnsureRoom, useLocalParticipant } from "@livekit/components-react";
-import { BarVisualizer } from "@livekit/react-native";
-import { useEffect, useState } from "react";
-import { ViewStyle, StyleSheet, View, Image, TouchableOpacity, StyleProp } from "react-native"
+import { TrackReference, useLocalParticipant } from '@livekit/components-react';
+import { BarVisualizer } from '@livekit/react-native';
+import { useEffect, useState } from 'react';
+import {
+  ViewStyle,
+  StyleSheet,
+  View,
+  Image,
+  TouchableOpacity,
+  StyleProp,
+} from 'react-native';
 
 type ControlBarProps = {
-  style?: StyleProp<ViewStyle>,
-  options: ControlBarOptions,
-}
+  style?: StyleProp<ViewStyle>;
+  options: ControlBarOptions;
+};
 
 type ControlBarOptions = {
-  isMicEnabled: boolean,
-  onMicClick: () => void,
-  isCameraEnabled: boolean,
-  onCameraClick: () => void,
-  isScreenShareEnabled: Boolean,
-  onScreenShareClick: () => void,
-  isChatEnabled: Boolean,
-  onChatClick: () => void,
-  onExitClick: () => void,
-}
+  isMicEnabled: boolean;
+  onMicClick: () => void;
+  isCameraEnabled: boolean;
+  onCameraClick: () => void;
+  isScreenShareEnabled: boolean;
+  onScreenShareClick: () => void;
+  isChatEnabled: boolean;
+  onChatClick: () => void;
+  onExitClick: () => void;
+};
 
-export default function ControlBar({
-  style = {},
-  options,
-}: ControlBarProps) {
-
-  const room = useEnsureRoom();
+export default function ControlBar({ style = {}, options }: ControlBarProps) {
   const { microphoneTrack, localParticipant } = useLocalParticipant();
-  const [trackRef, setTrackRef] = useState<TrackReference | undefined>(undefined);
+  const [trackRef, setTrackRef] = useState<TrackReference | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     if (microphoneTrack) {
@@ -35,32 +39,34 @@ export default function ControlBar({
         participant: localParticipant,
         publication: microphoneTrack,
         source: microphoneTrack.source,
-      })
+      });
     } else {
-      setTrackRef(undefined)
+      setTrackRef(undefined);
     }
-  }, [microphoneTrack, localParticipant])
+  }, [microphoneTrack, localParticipant]);
 
   // Images
-  var micImage = options.isMicEnabled
+  let micImage = options.isMicEnabled
     ? require('@/assets/images/mic_24dp.png')
     : require('@/assets/images/mic_off_24dp.png');
-  var cameraImage = options.isCameraEnabled
+  let cameraImage = options.isCameraEnabled
     ? require('@/assets/images/videocam_24dp.png')
     : require('@/assets/images/videocam_off_24dp.png');
-  var screenShareImage = options.isScreenShareEnabled
+  let screenShareImage = options.isScreenShareEnabled
     ? require('@/assets/images/present_to_all_24dp.png')
     : require('@/assets/images/present_to_all_off_24dp.png');
-  var chatImage = options.isChatEnabled
+  let chatImage = options.isChatEnabled
     ? require('@/assets/images/chat_24dp.png')
     : require('@/assets/images/chat_off_24dp.png');
-  var exitImage = require('@/assets/images/call_end_24dp.png');
+  let exitImage = require('@/assets/images/call_end_24dp.png');
 
   return (
     <View style={[style, styles.container]}>
-
       <TouchableOpacity
-        style={[styles.button, options.isMicEnabled ? styles.enabledButton : undefined] }
+        style={[
+          styles.button,
+          options.isMicEnabled ? styles.enabledButton : undefined,
+        ]}
         activeOpacity={0.7}
         onPress={() => options.onMicClick()}
       >
@@ -69,7 +75,7 @@ export default function ControlBar({
           barCount={3}
           trackRef={trackRef}
           style={styles.micVisualizer}
-          options= {{
+          options={{
             minHeight: 0.1,
             barColor: '#CCCCCC',
             barWidth: 2,
@@ -78,21 +84,30 @@ export default function ControlBar({
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.button, options.isCameraEnabled ? styles.enabledButton : undefined] }
+        style={[
+          styles.button,
+          options.isCameraEnabled ? styles.enabledButton : undefined,
+        ]}
         activeOpacity={0.7}
         onPress={() => options.onCameraClick()}
       >
         <Image style={styles.icon} source={cameraImage} />
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.button, options.isScreenShareEnabled ? styles.enabledButton : undefined] }
+        style={[
+          styles.button,
+          options.isScreenShareEnabled ? styles.enabledButton : undefined,
+        ]}
         activeOpacity={0.7}
         onPress={() => options.onScreenShareClick()}
       >
         <Image style={styles.icon} source={screenShareImage} />
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.button, options.isChatEnabled ? styles.enabledButton : undefined] }
+        style={[
+          styles.button,
+          options.isChatEnabled ? styles.enabledButton : undefined,
+        ]}
         activeOpacity={0.7}
         onPress={() => options.onChatClick()}
       >
@@ -106,11 +121,10 @@ export default function ControlBar({
         <Image style={styles.icon} source={exitImage} />
       </TouchableOpacity>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-
   container: {
     flexDirection: 'row',
     alignItems: 'stretch',
@@ -140,5 +154,5 @@ const styles = StyleSheet.create({
   micVisualizer: {
     width: 20,
     height: 20,
-  }
+  },
 });
