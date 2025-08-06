@@ -15,7 +15,7 @@ First, create a new [Sandbox Token Server](https://cloud.livekit.io/projects/p_m
 Then, run the following command to automatically clone this template and connect it to LiveKit Cloud:
 
 ```bash
-lk app create --template-url https://github.com/livekit-examples/voice-assistant-react-native --sandbox <token_server_sandbox_id>
+lk app create --template agent-starter-react-native --sandbox <token_server_sandbox_id>
 ```
 
 Afterwards, move to the newly created folder and run the following commands:
@@ -30,7 +30,7 @@ npx expo run:android
 npx expo run:ios
 ```
 
-You'll also need an agent to speak with. Try our sample voice assistant agent for [Python](https://github.com/livekit-examples/voice-pipeline-agent-python), [Node.js](https://github.com/livekit-examples/voice-pipeline-agent-node), or [create your own from scratch](https://docs.livekit.io/agents/quickstart/).
+You'll also need an agent to speak with. Try our starter agent for [Python](https://github.com/livekit-examples/agent-starter-python), [Node.js](https://github.com/livekit-examples/agent-starter-node), or [create your own from scratch](https://docs.livekit.io/agents/start/voice-ai/).
 
 > [!NOTE]
 > To setup without the LiveKit CLI, clone the repository and edit the `hooks/useConnectionDetails.ts` file to add either a `sandboxID` (if using a [Sandbox Token Server](https://cloud.livekit.io/projects/p_/sandbox/templates/token-server)), or a [manually generated](#token-generation) URL and token.
