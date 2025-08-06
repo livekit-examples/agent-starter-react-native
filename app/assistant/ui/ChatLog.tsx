@@ -81,21 +81,22 @@ const styles = StyleSheet.create({
   },
   userTranscription: {
     width: 'auto',
-    fontSize: 18,
+    fontSize: 17,
     alignSelf: 'flex-end',
     borderRadius: 6,
-    padding: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     margin: 16,
   },
   userTranscriptionLight: {
     backgroundColor: '#B0B0B0',
   },
   userTranscriptionDark: {
-    backgroundColor: '#404040',
+    backgroundColor: '#131313',
   },
 
   agentTranscription: {
-    fontSize: 20,
+    fontSize: 17,
     textAlign: 'left',
     margin: 16,
   },

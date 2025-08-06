@@ -1,16 +1,26 @@
 import { useVoiceAssistant } from "@livekit/components-react";
 import { BarVisualizer, VideoTrack } from "@livekit/react-native";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import React, { useCallback, useLayoutEffect, useState } from "react";
+import { LayoutChangeEvent, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 
 type AgentVisualizationProps = {
   style: StyleProp<ViewStyle>,
 }
 
+const barSize = 0.20;
+
 export default function AgentVisualization({
   style
 }: AgentVisualizationProps) {
   const { state, audioTrack, videoTrack } = useVoiceAssistant();
-
+  const [barWidth, setBarWidth] = useState(0);
+  const [barBorderRadius, setBarBorderRadius] = useState(0);
+  const layoutCallback = useCallback((event: LayoutChangeEvent) => {
+    const { x, y, width, height } = event.nativeEvent.layout
+    console.log(x, y, width, height);
+    setBarWidth(barSize * height);
+    setBarBorderRadius(barSize * height);
+  }, []);
   let videoView = ( videoTrack 
     ? <VideoTrack 
         trackRef={videoTrack} 
@@ -20,17 +30,20 @@ export default function AgentVisualization({
   )
   return (
     <View style={[style, styles.container]} >
-      
-      <BarVisualizer
-        state={state}
-        barCount={5}
-        options={{
-          minHeight: 0.1,
-          barWidth: 12,
-        }}
-        trackRef={audioTrack}
-        style={styles.voiceAssistant}
-      />
+      <View style={styles.barVisualizerContainer} onLayout={layoutCallback}>
+        <BarVisualizer
+          state={state}
+          barCount={5}
+          options={{
+            minHeight: barSize,
+            barWidth: barWidth,
+            barColor: '#FFFFFF',
+            barBorderRadius: barBorderRadius,
+          }}
+          trackRef={audioTrack}
+          style={styles.barVisualizer}
+        />
+      </View>
       {videoView}
     </View>
   );
@@ -48,9 +61,13 @@ const styles = StyleSheet.create({
     height: '100%',
     zIndex: 1,
   },
-  voiceAssistant: {
+  barVisualizerContainer: {
     width: '100%',
     height: '30%',
     zIndex: 0,
+  },
+  barVisualizer: {
+    width: '100%',
+    height: '100%',
   },
 });
