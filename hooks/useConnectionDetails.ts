@@ -17,19 +17,29 @@ const hardcodedToken = '';
  */
 export function useConnectionDetails(): ConnectionDetails | undefined {
   const [details, setDetails] = useState<ConnectionDetails | undefined>(() => {
+    return undefined;
+  });
+
+  useEffect(() => {
+    fetchToken().then(details => {
+      setDetails(details);
+    });
+  }, []);
+
+  return details;
+}
+
+export async function fetchToken() : Promise<ConnectionDetails | undefined> {
+
     if (!sandboxID) {
       return {
         url: hardcodedUrl,
         token: hardcodedToken,
       };
     }
-    return undefined;
-  });
-
-  useEffect(() => {
     const fetchToken = async () => {
       if (!sandboxID) {
-        return;
+        return undefined;
       }
       const response = await fetch(tokenEndpoint, {
         headers: { 'X-Sandbox-ID': sandboxID },
@@ -37,20 +47,18 @@ export function useConnectionDetails(): ConnectionDetails | undefined {
       const json = await response.json();
 
       if (json.serverUrl && json.participantToken) {
-        setDetails({
+        return {
           url: json.serverUrl,
           token: json.participantToken,
-        });
+        };
+      } else {
+        return undefined;
       }
     };
-
-    fetchToken();
-  }, []);
-
-  return details;
+    return fetchToken();
 }
 
-type ConnectionDetails = {
+export type ConnectionDetails = {
   url: string;
   token: string;
 };
