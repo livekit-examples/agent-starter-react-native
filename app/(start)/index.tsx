@@ -1,6 +1,6 @@
-import { ConnectionDetails, fetchToken } from '@/hooks/useConnectionDetails';
+import { useConnection } from '@/hooks/useConnection';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -12,37 +12,18 @@ import {
 
 export default function StartScreen() {
   const router = useRouter();
-
-  let [isConnecting, setConnecting] = useState(false);
-  let [connectionDetails, setConnectionDetails] = useState<
-    ConnectionDetails | undefined
-  >(undefined);
-
-  // Fetch token when we're connecting.
-  useEffect(() => {
-    if (isConnecting) {
-      fetchToken().then((details) => {
-        console.log(details);
-        setConnectionDetails(details);
-        if (!details) {
-          setConnecting(false);
-        }
-      });
-    }
-  }, [isConnecting]);
+  const { isConnectionActive, connect } = useConnection();
 
   // Navigate to Assistant screen when we have the connection details.
   useEffect(() => {
-    if (isConnecting && connectionDetails) {
-      setConnecting(false);
-      setConnectionDetails(undefined);
+    if (isConnectionActive) {
       router.navigate('../assistant');
     }
-  }, [isConnecting, router, connectionDetails]);
+  }, [isConnectionActive, router]);
 
   let connectText: string;
 
-  if (isConnecting) {
+  if (isConnectionActive) {
     connectText = 'Connecting';
   } else {
     connectText = 'Start Voice Assistant';
@@ -58,13 +39,13 @@ export default function StartScreen() {
 
       <TouchableOpacity
         onPress={() => {
-          setConnecting(true);
+          connect();
         }}
         style={styles.button}
         activeOpacity={0.7}
-        disabled={isConnecting} // Disable button while loading
+        disabled={isConnectionActive} // Disable button while loading
       >
-        {isConnecting ? (
+        {isConnectionActive ? (
           <ActivityIndicator
             size="small"
             color="#ffffff"

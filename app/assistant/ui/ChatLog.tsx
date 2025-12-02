@@ -1,5 +1,7 @@
-import { Transcription } from '@/hooks/useDataStreamTranscriptions';
-import { useLocalParticipant } from '@livekit/components-react';
+import {
+  ReceivedMessage,
+  useLocalParticipant,
+} from '@livekit/components-react';
 import { useCallback } from 'react';
 import {
   ListRenderItemInfo,
@@ -14,28 +16,30 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 
 export type ChatLogProps = {
   style: StyleProp<ViewStyle>;
-  transcriptions: Transcription[];
+  messages: ReceivedMessage[];
 };
-export default function ChatLog({ style, transcriptions }: ChatLogProps) {
+export default function ChatLog({
+  style,
+  messages: transcriptions,
+}: ChatLogProps) {
   const { localParticipant } = useLocalParticipant();
-  const localParticipantIdentity = localParticipant.identity;
 
   const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<Transcription>) => {
-      const isLocalUser = item.identity === localParticipantIdentity;
+    ({ item }: ListRenderItemInfo<ReceivedMessage>) => {
+      const isLocalUser = item.from === localParticipant;
       if (isLocalUser) {
-        return <UserTranscriptionText text={item.segment.text} />;
+        return <UserTranscriptionText text={item.message} />;
       } else {
-        return <AgentTranscriptionText text={item.segment.text} />;
+        return <AgentTranscriptionText text={item.message} />;
       }
     },
-    [localParticipantIdentity]
+    [localParticipant]
   );
 
   return (
     <Animated.FlatList
       renderItem={renderItem}
-      data={transcriptions}
+      data={transcriptions.toReversed()}
       style={style}
       inverted={true}
       itemLayoutAnimation={LinearTransition}

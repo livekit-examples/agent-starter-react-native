@@ -1,4 +1,4 @@
-version: "3"
+version: "4"
 output: interleaved
 dotenv: [".env.local"]
 
@@ -6,7 +6,7 @@ tasks:
   post_create:
     desc: "Runs after this template is instantiated as a Sandbox or Bootstrap"
     vars:
-      TOKEN_FILE: "hooks/useConnectionDetails.ts"
+      TOKEN_FILE: "hooks/useConnection.ts"
     cmds:
       - echo -e "Setting up sandbox..."
       - platforms: [darwin]
