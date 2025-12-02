@@ -10,22 +10,21 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   AudioSession,
-  LiveKitRoom,
   useIOSAudioManagement,
   useLocalParticipant,
   useParticipantTracks,
   useRoomContext,
   VideoTrack,
 } from '@livekit/react-native';
-import { useConnectionDetails } from '@/hooks/useConnectionDetails';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import ControlBar from './ui/ControlBar';
 import ChatBar from './ui/ChatBar';
 import ChatLog from './ui/ChatLog';
 import AgentVisualization from './ui/AgentVisualization';
-import useDataStreamTranscriptions from '@/hooks/useDataStreamTranscriptions';
 import { Track } from 'livekit-client';
+import { TrackReference, useSessionContext, useSessionMessages, useTrackToggle } from '@livekit/components-react';
+import { useConnection } from '@/hooks/useConnection';
 
 export default function AssistantScreen() {
   // Start the audio session first.
@@ -40,27 +39,19 @@ export default function AssistantScreen() {
     };
   }, []);
 
-  const connectionDetails = useConnectionDetails();
-
   return (
     <SafeAreaView>
-      <LiveKitRoom
-        serverUrl={connectionDetails?.url}
-        token={connectionDetails?.token}
-        connect={true}
-        audio={true}
-        video={false}
-      >
-        <RoomView />
-      </LiveKitRoom>
+      <RoomView />
     </SafeAreaView>
   );
 }
 
 const RoomView = () => {
   const router = useRouter();
-
+  const connection = useConnection();
+  const session = useSessionContext();
   const room = useRoomContext();
+
   useIOSAudioManagement(room, true);
 
   const {
@@ -83,39 +74,34 @@ const RoomView = () => {
           participant: localParticipant,
           publication: localCameraTrack,
           source: Track.Source.Camera,
-        }
+        } satisfies TrackReference
       : localScreenShareTrack.length > 0 && isScreenShareEnabled
       ? localScreenShareTrack[0]
       : null;
 
-  // Transcriptions
-  const transcriptionState = useDataStreamTranscriptions();
-  const addTranscription = transcriptionState.addTranscription;
+  // Messages
+  const { messages, send } = useSessionMessages()
   const [isChatEnabled, setChatEnabled] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
 
   const onChatSend = useCallback(
     (message: string) => {
-      addTranscription(localParticipantIdentity, message);
+      send(message)
       setChatMessage('');
     },
-    [localParticipantIdentity, addTranscription, setChatMessage]
+    [localParticipantIdentity, setChatMessage]
   );
 
   // Control callbacks
-  const onMicClick = useCallback(() => {
-    localParticipant.setMicrophoneEnabled(!isMicrophoneEnabled);
-  }, [isMicrophoneEnabled, localParticipant]);
-  const onCameraClick = useCallback(() => {
-    localParticipant.setCameraEnabled(!isCameraEnabled);
-  }, [isCameraEnabled, localParticipant]);
-  const onScreenShareClick = useCallback(() => {
-    localParticipant.setScreenShareEnabled(!isScreenShareEnabled);
-  }, [isScreenShareEnabled, localParticipant]);
+  const micToggle = useTrackToggle({ source: Track.Source.Microphone });
+  const cameraToggle = useTrackToggle({ source: Track.Source.Camera });
+  const screenShareToggle = useTrackToggle({ source: Track.Source.ScreenShare });
   const onChatClick = useCallback(() => {
     setChatEnabled(!isChatEnabled);
   }, [isChatEnabled, setChatEnabled]);
   const onExitClick = useCallback(() => {
+    connection.startDisconnectTransition();
+    connection.onDisconnectTransitionComplete();
     router.back();
   }, [router]);
 
@@ -161,7 +147,7 @@ const RoomView = () => {
       <View style={styles.spacer} />
       <ChatLog
         style={styles.logContainer}
-        transcriptions={transcriptionState.transcriptions}
+        messages={messages}
       />
       <ChatBar
         style={styles.chatBar}
@@ -194,10 +180,10 @@ const RoomView = () => {
           isCameraEnabled,
           isScreenShareEnabled,
           isChatEnabled,
-          onMicClick,
-          onCameraClick,
+          onMicClick: micToggle.toggle,
+          onCameraClick: cameraToggle.toggle,
           onChatClick,
-          onScreenShareClick,
+          onScreenShareClick: screenShareToggle.toggle,
           onExitClick,
         }}
       />

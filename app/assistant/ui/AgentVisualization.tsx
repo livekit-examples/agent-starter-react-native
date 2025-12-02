@@ -1,4 +1,4 @@
-import { useVoiceAssistant } from '@livekit/components-react';
+import { useAgent, useVoiceAssistant } from '@livekit/components-react';
 import { BarVisualizer, VideoTrack } from '@livekit/react-native';
 import React, { useCallback, useState } from 'react';
 import {
@@ -16,17 +16,19 @@ type AgentVisualizationProps = {
 const barSize = 0.2;
 
 export default function AgentVisualization({ style }: AgentVisualizationProps) {
-  const { state, audioTrack, videoTrack } = useVoiceAssistant();
+  const { state, microphoneTrack, cameraTrack } = useAgent();
   const [barWidth, setBarWidth] = useState(0);
   const [barBorderRadius, setBarBorderRadius] = useState(0);
+  
   const layoutCallback = useCallback((event: LayoutChangeEvent) => {
     const { x, y, width, height } = event.nativeEvent.layout;
     console.log(x, y, width, height);
     setBarWidth(barSize * height);
     setBarBorderRadius(barSize * height);
   }, []);
-  let videoView = videoTrack ? (
-    <VideoTrack trackRef={videoTrack} style={styles.videoTrack} />
+
+  let videoView = cameraTrack ? (
+    <VideoTrack trackRef={cameraTrack} style={styles.videoTrack} />
   ) : null;
   return (
     <View style={[style, styles.container]}>
@@ -40,7 +42,7 @@ export default function AgentVisualization({ style }: AgentVisualizationProps) {
             barColor: '#FFFFFF',
             barBorderRadius: barBorderRadius,
           }}
-          trackRef={audioTrack}
+          trackRef={microphoneTrack}
           style={styles.barVisualizer}
         />
       </View>
