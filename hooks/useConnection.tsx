@@ -19,15 +19,13 @@ const hardcodedToken = '';
 interface ConnectionContextType {
   isConnectionActive: boolean;
   connect: () => void;
-  startDisconnectTransition: () => void;
-  onDisconnectTransitionComplete: () => void;
+  disconnect: () => void;
 }
 
 const ConnectionContext = createContext<ConnectionContextType>({
   isConnectionActive: false,
   connect: () => {},
-  startDisconnectTransition: () => {},
-  onDisconnectTransitionComplete: () => {},
+  disconnect: () => {},
 });
 
 export function useConnection() {
@@ -72,10 +70,8 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
         setIsConnectionActive(true);
         startSession();
       },
-      startDisconnectTransition: () => {
+      disconnect: () => {
         setIsConnectionActive(false);
-      },
-      onDisconnectTransitionComplete: () => {
         endSession();
       },
     };

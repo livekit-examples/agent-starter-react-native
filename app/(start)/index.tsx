@@ -1,6 +1,6 @@
 import { useConnection } from '@/hooks/useConnection';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   StyleSheet,
   View,

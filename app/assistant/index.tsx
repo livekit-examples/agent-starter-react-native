@@ -23,7 +23,11 @@ import ChatBar from './ui/ChatBar';
 import ChatLog from './ui/ChatLog';
 import AgentVisualization from './ui/AgentVisualization';
 import { Track } from 'livekit-client';
-import { TrackReference, useSessionContext, useSessionMessages, useTrackToggle } from '@livekit/components-react';
+import {
+  TrackReference,
+  useSessionMessages,
+  useTrackToggle,
+} from '@livekit/components-react';
 import { useConnection } from '@/hooks/useConnection';
 
 export default function AssistantScreen() {
@@ -49,7 +53,6 @@ export default function AssistantScreen() {
 const RoomView = () => {
   const router = useRouter();
   const connection = useConnection();
-  const session = useSessionContext();
   const room = useRoomContext();
 
   useIOSAudioManagement(room, true);
@@ -70,40 +73,41 @@ const RoomView = () => {
 
   const localVideoTrack =
     localCameraTrack && isCameraEnabled
-      ? {
+      ? ({
           participant: localParticipant,
           publication: localCameraTrack,
           source: Track.Source.Camera,
-        } satisfies TrackReference
+        } satisfies TrackReference)
       : localScreenShareTrack.length > 0 && isScreenShareEnabled
       ? localScreenShareTrack[0]
       : null;
 
   // Messages
-  const { messages, send } = useSessionMessages()
+  const { messages, send } = useSessionMessages();
   const [isChatEnabled, setChatEnabled] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
 
   const onChatSend = useCallback(
     (message: string) => {
-      send(message)
+      send(message);
       setChatMessage('');
     },
-    [localParticipantIdentity, setChatMessage]
+    [setChatMessage, send]
   );
 
   // Control callbacks
   const micToggle = useTrackToggle({ source: Track.Source.Microphone });
   const cameraToggle = useTrackToggle({ source: Track.Source.Camera });
-  const screenShareToggle = useTrackToggle({ source: Track.Source.ScreenShare });
+  const screenShareToggle = useTrackToggle({
+    source: Track.Source.ScreenShare,
+  });
   const onChatClick = useCallback(() => {
     setChatEnabled(!isChatEnabled);
   }, [isChatEnabled, setChatEnabled]);
   const onExitClick = useCallback(() => {
-    connection.startDisconnectTransition();
-    connection.onDisconnectTransitionComplete();
+    connection.disconnect();
     router.back();
-  }, [router]);
+  }, [connection, router]);
 
   // Layout positioning
   const [containerWidth, setContainerWidth] = useState(
@@ -145,10 +149,7 @@ const RoomView = () => {
       }}
     >
       <View style={styles.spacer} />
-      <ChatLog
-        style={styles.logContainer}
-        messages={messages}
-      />
+      <ChatLog style={styles.logContainer} messages={messages} />
       <ChatBar
         style={styles.chatBar}
         value={chatMessage}

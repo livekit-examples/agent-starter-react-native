@@ -1,4 +1,4 @@
-import { useAgent, useVoiceAssistant } from '@livekit/components-react';
+import { useAgent } from '@livekit/components-react';
 import { BarVisualizer, VideoTrack } from '@livekit/react-native';
 import React, { useCallback, useState } from 'react';
 import {
@@ -19,7 +19,7 @@ export default function AgentVisualization({ style }: AgentVisualizationProps) {
   const { state, microphoneTrack, cameraTrack } = useAgent();
   const [barWidth, setBarWidth] = useState(0);
   const [barBorderRadius, setBarBorderRadius] = useState(0);
-  
+
   const layoutCallback = useCallback((event: LayoutChangeEvent) => {
     const { x, y, width, height } = event.nativeEvent.layout;
     console.log(x, y, width, height);

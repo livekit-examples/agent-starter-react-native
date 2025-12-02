@@ -1,4 +1,7 @@
-import { ReceivedMessage, useLocalParticipant } from '@livekit/components-react';
+import {
+  ReceivedMessage,
+  useLocalParticipant,
+} from '@livekit/components-react';
 import { useCallback } from 'react';
 import {
   ListRenderItemInfo,
@@ -15,7 +18,10 @@ export type ChatLogProps = {
   style: StyleProp<ViewStyle>;
   messages: ReceivedMessage[];
 };
-export default function ChatLog({ style, messages: transcriptions }: ChatLogProps) {
+export default function ChatLog({
+  style,
+  messages: transcriptions,
+}: ChatLogProps) {
   const { localParticipant } = useLocalParticipant();
 
   const renderItem = useCallback(
