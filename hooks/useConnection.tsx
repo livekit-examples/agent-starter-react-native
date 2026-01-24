@@ -3,7 +3,7 @@ import { createContext, useContext, useMemo, useState } from 'react';
 import { SessionProvider, useSession } from '@livekit/components-react';
 
 // TODO: Add your Sandbox ID here
-const sandboxID = '';
+const sandboxID = 'speechplus-1fjqy1';
 
 // The name of the agent you wish to be dispatched.
 const agentName = undefined
@@ -13,14 +13,15 @@ const agentName = undefined
 // and using one of your API Keys to generate a token with custom TTL and permissions.
 
 // For use without a token server.
-const hardcodedUrl = '';
-const hardcodedToken = '';
+const hardcodedUrl = 'wss://speechplus-vs6wggn9.livekit.cloud';
+const hardcodedToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjkyOTA3NTIsImlkZW50aXR5IjoiaXNpYWgiLCJpc3MiOiJBUEkzUDg4RmZnanRlQzMiLCJuYmYiOjE3NjkyODk4NTIsInN1YiI6ImlzaWFoIiwidmlkZW8iOnsiY2FuUHVibGlzaCI6dHJ1ZSwiY2FuUHVibGlzaERhdGEiOnRydWUsImNhblN1YnNjcmliZSI6dHJ1ZSwicm9vbSI6IlJvb20iLCJyb29tSm9pbiI6dHJ1ZX19.psc1kLcY_O0xYDszgZVNnSY-27yD53eKf6N9qPF_Ww0';
 
 interface ConnectionContextType {
   isConnectionActive: boolean;
   connect: () => void;
   disconnect: () => void;
 }
+
 
 const ConnectionContext = createContext<ConnectionContextType>({
   isConnectionActive: false,
