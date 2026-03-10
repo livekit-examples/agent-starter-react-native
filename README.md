@@ -10,7 +10,7 @@ This template is free for you to use or modify as you see fit.
 
 The easiest way to get this app running is with a [token server](https://docs.livekit.io/frontends/authentication/tokens/sandbox-token-server/) and the [LiveKit CLI](https://docs.livekit.io/home/cli/cli-setup/).
 
-First, enable the token server from your project's **Options** at the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the `sandboxID`.
+First, enable the token server from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the `sandboxID`.
 
 Then, run the following command to automatically clone this template and connect it to LiveKit Cloud:
 
@@ -33,7 +33,7 @@ npx expo run:ios
 You'll also need an agent to speak with. Try our starter agent for [Python](https://github.com/livekit-examples/agent-starter-python), [Node.js](https://github.com/livekit-examples/agent-starter-node), or [create your own from scratch](https://docs.livekit.io/agents/start/voice-ai/).
 
 > [!NOTE]
-> To setup without the LiveKit CLI, clone the repository and edit the `hooks/useConnectionDetails.ts` file to add either a `sandboxID` (from your project's **Options** at the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page), or a [manually generated](#token-generation) URL and token.
+> To setup without the LiveKit CLI, clone the repository and edit the `hooks/useConnectionDetails.ts` file to add either a `sandboxID` (from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page), or a [manually generated](#token-generation) URL and token.
 
 ## Token generation
 
