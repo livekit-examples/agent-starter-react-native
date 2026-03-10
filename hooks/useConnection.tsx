@@ -8,7 +8,7 @@ const sandboxID = '';
 // The name of the agent you wish to be dispatched.
 const agentName = undefined
 
-// NOTE: If you prefer not to use LiveKit Sandboxes for testing, you can generate your
+// NOTE: If you prefer not to use the token server for testing, you can generate your
 // tokens manually by visiting https://cloud.livekit.io/projects/p_/settings/keys
 // and using one of your API Keys to generate a token with custom TTL and permissions.
 
