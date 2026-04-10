@@ -1,5 +1,4 @@
-version: "4"
-output: interleaved
+version: "3"
 dotenv: [".env.local"]
 
 tasks:
@@ -18,4 +17,4 @@ tasks:
       - echo -e "Install the dependencies by running \"npm install\""
       - echo -e "To give it a try, run \"npx expo run:android\" or \"npx expo run:ios\" to run the app.\n"
 
-      - echo -e "For more help view your project's README.md file or join our Slack community at https://livekit.io/join-slack."
+      - echo -e "For more help view your project's README.md file or join our Discourse community at https://community.livekit.io."
