@@ -14,6 +14,7 @@ import {
   useLocalParticipant,
   useParticipantTracks,
   useRoomContext,
+  LiveKitRoom,
   VideoTrack,
 } from '@livekit/react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,23 +31,21 @@ import {
 } from '@livekit/components-react';
 import { useConnection } from '@/hooks/useConnection';
 
+const LIVEKIT_URL = 'wss://speechplus-vs6wggn9.livekit.cloud';
+const LIVEKIT_TOKEN = 'eyJleHAiOjE3NjkyOTA3NTIsImlkZW50aXR5IjoiaXNpYWgiLCJpc3MiOiJBUEkzUDg4RmZnanRlQzMiLCJuYmYiOjE3NjkyODk4NTIsInN1YiI6ImlzaWFoIiwidmlkZW8iOnsiY2FuUHVibGlzaCI6dHJ1ZSwiY2FuUHVibGlzaERhdGEiOnRydWUsImNhblN1YnNjcmliZSI6dHJ1ZSwicm9vbSI6IlJvb20iLCJyb29tSm9pbiI6dHJ1ZX19'
 export default function AssistantScreen() {
-  // Start the audio session first.
-  useEffect(() => {
-    let start = async () => {
-      await AudioSession.startAudioSession();
-    };
-
-    start();
-    return () => {
-      AudioSession.stopAudioSession();
-    };
-  }, []);
-
   return (
-    <SafeAreaView>
-      <RoomView />
-    </SafeAreaView>
+    <LiveKitRoom
+      serverUrl={LIVEKIT_URL}
+      token={LIVEKIT_TOKEN}
+      connect={true}
+      audio={true}
+      video={false}
+    >
+      <SafeAreaView style={{ flex: 1 }}>
+        <RoomView />
+      </SafeAreaView>
+    </LiveKitRoom>
   );
 }
 
