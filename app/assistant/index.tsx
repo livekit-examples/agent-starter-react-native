@@ -14,6 +14,7 @@ import {
   useLocalParticipant,
   useParticipantTracks,
   useRoomContext,
+  LiveKitRoom,
   VideoTrack,
 } from '@livekit/react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,9 +31,16 @@ import {
 } from '@livekit/components-react';
 import { useConnection } from '@/hooks/useConnection';
 
+const LIVEKIT_URL = 'wss://speechplus-vs6wggn9.livekit.cloud';
+const LIVEKIT_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjkzMjI5NTYsImlkZW50aXR5IjoiaXNpYWgiLCJpc3MiOiJBUEkzUDg4RmZnanRlQzMiLCJuYmYiOjE3NjkzMjIwNTYsInN1YiI6ImlzaWFoIiwidmlkZW8iOnsiY2FuUHVibGlzaCI6dHJ1ZSwiY2FuUHVibGlzaERhdGEiOnRydWUsImNhblN1YnNjcmliZSI6dHJ1ZSwicm9vbSI6InJvb20iLCJyb29tSm9pbiI6dHJ1ZX19.f0Qg45EinAoNg0qxdoGbuDRwZiyZyLXm06pF9A3_1z8'
+
+
+
+// This is where the app actually starts and holds pretty much all of the UI
 export default function AssistantScreen() {
-  // Start the audio session first.
-  useEffect(() => {
+
+  // ESSENTIAL TO START THE SESSION AUDIO ON IOS
+      useEffect(() => {
     let start = async () => {
       await AudioSession.startAudioSession();
     };
@@ -42,11 +50,19 @@ export default function AssistantScreen() {
       AudioSession.stopAudioSession();
     };
   }, []);
-
+  
   return (
-    <SafeAreaView>
-      <RoomView />
-    </SafeAreaView>
+    <LiveKitRoom
+      serverUrl={LIVEKIT_URL}
+      token={LIVEKIT_TOKEN}
+      connect={true}
+      audio={true}
+      video={false}
+    >
+      <SafeAreaView style={{ flex: 1 }}>
+        <RoomView />
+      </SafeAreaView>
+    </LiveKitRoom>
   );
 }
 
@@ -54,6 +70,7 @@ const RoomView = () => {
   const router = useRouter();
   const connection = useConnection();
   const room = useRoomContext();
+
 
   useIOSAudioManagement(room, true);
 
@@ -190,6 +207,7 @@ const RoomView = () => {
       />
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({
