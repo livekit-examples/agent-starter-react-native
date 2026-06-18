@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: '18.x'
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.npm
