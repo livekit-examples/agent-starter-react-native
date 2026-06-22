@@ -19,7 +19,7 @@
   "dependencies": {
     "@config-plugins/react-native-webrtc": "13.0.0",
     "@expo/vector-icons": "^15.0.3",
-    "@livekit/components-react": "^2.9.15",
+    "@livekit/components-react": "2.9.21",
     "@livekit/react-native": "^2.10.2",
     "@livekit/react-native-expo-plugin": "^1.0.1",
     "@livekit/react-native-webrtc": "^144.0.0",
