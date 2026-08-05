@@ -16,6 +16,9 @@ const agentName = undefined
 const hardcodedUrl = '';
 const hardcodedToken = '';
 
+// Fallback: If no other agent connection is configured, connect to homepage agent 
+const homepageAgentUrl = "https://livekit.com/api/homepage-agent/token";
+
 interface ConnectionContextType {
   isConnectionActive: boolean;
   connect: () => void;
@@ -46,13 +49,15 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
   const tokenSource = useMemo(() => {
     if (sandboxID) {
       return TokenSource.sandboxTokenServer(sandboxID)
-    } else {
+    } else if (hardcodedUrl && hardcodedToken) {
       return TokenSource.literal(
         {
           serverUrl: hardcodedUrl,
           participantToken: hardcodedToken,
         } satisfies TokenSourceResponseObject
       )
+    } else {
+      return TokenSource.endpoint(homepageAgentUrl)
     }
   }, [sandboxID, hardcodedUrl, hardcodedToken])
 
