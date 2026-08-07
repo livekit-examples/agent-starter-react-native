@@ -1,10 +1,11 @@
-import { useAgent } from '@livekit/components-react';
+import { useAgent, useRemoteParticipants } from '@livekit/components-react';
 import { BarVisualizer, VideoTrack } from '@livekit/react-native';
 import React, { useCallback, useState } from 'react';
 import {
   LayoutChangeEvent,
   StyleProp,
   StyleSheet,
+  Text,
   View,
   ViewStyle,
 } from 'react-native';
@@ -17,6 +18,8 @@ const barSize = 0.2;
 
 export default function AgentVisualization({ style }: AgentVisualizationProps) {
   const { state, microphoneTrack, cameraTrack } = useAgent();
+  const remoteParticipants = useRemoteParticipants();
+  const hasAgent = remoteParticipants.some((participant) => participant.isAgent);
   const [barWidth, setBarWidth] = useState(0);
   const [barBorderRadius, setBarBorderRadius] = useState(0);
 
@@ -46,6 +49,7 @@ export default function AgentVisualization({ style }: AgentVisualizationProps) {
           style={styles.barVisualizer}
         />
       </View>
+      {!hasAgent && <Text style={styles.waitingText}>Waiting for agent</Text>}
       {videoView}
     </View>
   );
@@ -70,5 +74,11 @@ const styles = StyleSheet.create({
   barVisualizer: {
     width: '100%',
     height: '100%',
+  },
+  waitingText: {
+    position: 'absolute',
+    top: '68%',
+    color: '#FFFFFF',
+    fontSize: 16,
   },
 });
