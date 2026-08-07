@@ -19,7 +19,9 @@ const barSize = 0.2;
 export default function AgentVisualization({ style }: AgentVisualizationProps) {
   const { state, microphoneTrack, cameraTrack } = useAgent();
   const remoteParticipants = useRemoteParticipants();
-  const hasAgent = remoteParticipants.some((participant) => participant.isAgent);
+  const hasAgent = remoteParticipants.some(
+    (participant) => participant.isAgent
+  );
   const [barWidth, setBarWidth] = useState(0);
   const [barBorderRadius, setBarBorderRadius] = useState(0);
 
