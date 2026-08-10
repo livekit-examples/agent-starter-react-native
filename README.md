@@ -8,14 +8,12 @@ This template is free for you to use or modify as you see fit.
 
 ## Getting started
 
-The easiest way to get this app running is with a [token server](https://docs.livekit.io/frontends/authentication/tokens/sandbox-token-server/) and the [LiveKit CLI](https://docs.livekit.io/home/cli/cli-setup/).
-
-First, enable the token server from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the `sandboxID`.
+The easiest way to get this app running is with the [LiveKit CLI](https://docs.livekit.io/home/cli/cli-setup/).
 
 Then, run the following command to automatically clone this template and connect it to LiveKit Cloud:
 
 ```bash
-lk app create --template agent-starter-react-native --sandbox <token_server_sandbox_id>
+lk app create --template agent-starter-react-native
 ```
 
 Afterwards, move to the newly created folder and run the following commands:
@@ -30,10 +28,22 @@ npx expo run:android
 npx expo run:ios
 ```
 
-You'll also need an agent to speak with. Try our starter agent for [Python](https://github.com/livekit-examples/agent-starter-python), [Node.js](https://github.com/livekit-examples/agent-starter-node), or [create your own from scratch](https://docs.livekit.io/agents/start/voice-ai/).
+The app is configured to connect to the LiveKit homepage agent by default, which you can also try at [livekit.com](https://www.livekit.com). To point the app at your own agent, see [Connect to your agent](#connect-to-your-agent).
 
 > [!NOTE]
-> To setup without the LiveKit CLI, clone the repository and edit the `hooks/useConnectionDetails.ts` file to add either a `sandboxID` (from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page), or a [manually generated](#token-generation) URL and token.
+> To setup without the LiveKit CLI, clone the repository via git.
+
+## Connect to your agent
+
+To switch from the default agent to your own, you first need a LiveKit agent to speak with. For a no-code setup, use the [Agent Builder](https://docs.livekit.io/agents/start/builder/). For more customization, try our starter agent for [Python](https://github.com/livekit-examples/agent-starter-python), [Node.js](https://github.com/livekit-examples/agent-starter-node), or [create your own from scratch](https://docs.livekit.io/agents/start/voice-ai/).
+
+Second, you need a token server. For development, the easiest option is the [sandbox token server](https://docs.livekit.io/frontends/authentication/tokens/sandbox-token-server/): enable it from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the `sandboxId`.
+
+Then edit `sandboxID` in `hooks/useConnection.tsx`:
+
+```ts
+const sandboxID = 'your id here';
+```
 
 ## Token generation
 
