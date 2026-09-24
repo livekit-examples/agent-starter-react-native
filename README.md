@@ -37,17 +37,24 @@ The app is configured to connect to the LiveKit homepage agent by default, which
 
 To switch from the default agent to your own, you first need a LiveKit agent to speak with. For a no-code setup, use the [Agent Builder](https://docs.livekit.io/agents/start/builder/). For more customization, try our starter agent for [Python](https://github.com/livekit-examples/agent-starter-python), [Node.js](https://github.com/livekit-examples/agent-starter-node), or [create your own from scratch](https://docs.livekit.io/agents/start/voice-ai/).
 
-Second, you need a token server. For development, the easiest option is the [sandbox token server](https://docs.livekit.io/frontends/authentication/tokens/sandbox-token-server/): enable it from your project's **Options** on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the `sandboxId`.
+Second, you need a token server. For development, the easiest option is the [development token server](https://docs.livekit.io/frontends/build/authentication/development-token-server/): turn on the **Development token server** switch on the [Settings](https://cloud.livekit.io/projects/p_/settings/project) page in LiveKit Cloud and copy the **Token server ID**.
 
-Then edit `sandboxID` in `hooks/useConnection.tsx`:
+Then edit `tokenServerId` in `hooks/useConnection.tsx`:
 
 ```ts
-const sandboxID = 'your id here';
+const tokenServerId = '<your-token-server-id>';
 ```
+
+> [!NOTE]
+> The development token server is for prototyping only: any client can request a token with any permissions. See [Token generation](#token-generation) before you ship.
+>
+> This setting was previously called the *sandbox token server*.
 
 ## Token generation
 
-In a production environment, you will be responsible for developing a solution to [generate tokens for your users](https://docs.livekit.io/home/server/generating-tokens/) which is integrated with your authentication solution. You should disable the token server and modify `hooks/useConnectionDetails.ts` to use your own token server.
+In a production environment, you will be responsible for developing a solution to [generate tokens for your users](https://docs.livekit.io/home/server/generating-tokens/) that integrates with your authentication system.
+
+You should turn off the development token server and replace `TokenSource.developmentTokenServer` in `hooks/useConnection.tsx` with `TokenSource.endpoint` pointing at your own token server, or a `TokenSource.custom` implementation.
 
 ## Contributing
 

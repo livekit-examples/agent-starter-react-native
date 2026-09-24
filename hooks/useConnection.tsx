@@ -2,8 +2,11 @@ import { TokenSource, TokenSourceBase, TokenSourceResponseObject } from 'livekit
 import { createContext, useContext, useMemo, useState } from 'react';
 import { SessionProvider, useSession } from '@livekit/components-react';
 
-// TODO: Add your Sandbox ID here
-const sandboxID = '';
+// TODO: Add your development token server ID here.
+// Find it on your LiveKit Cloud project's Settings page under "Development token server".
+// See https://docs.livekit.io/frontends/build/authentication/development-token-server/
+// (This setting was previously called the sandbox token server.)
+const tokenServerId = '';
 
 // The name of the agent you wish to be dispatched.
 const agentName = undefined
@@ -47,8 +50,8 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
   const [isConnectionActive, setIsConnectionActive] = useState(false);
 
   const tokenSource = useMemo(() => {
-    if (sandboxID) {
-      return TokenSource.sandboxTokenServer(sandboxID)
+    if (tokenServerId) {
+      return TokenSource.developmentTokenServer(tokenServerId)
     } else if (hardcodedUrl && hardcodedToken) {
       return TokenSource.literal(
         {
@@ -59,7 +62,7 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
     } else {
       return TokenSource.endpoint(homepageAgentUrl)
     }
-  }, [sandboxID, hardcodedUrl, hardcodedToken])
+  }, [tokenServerId, hardcodedUrl, hardcodedToken])
 
   const session = useSession(
     tokenSource,

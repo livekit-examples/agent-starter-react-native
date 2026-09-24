@@ -5,13 +5,13 @@ tasks:
   post_create:
     desc: "Runs after this template is instantiated as a Sandbox or Bootstrap"
     vars:
-      TOKEN_FILE: "hooks/useConnection.ts"
+      TOKEN_FILE: "hooks/useConnection.tsx"
     cmds:
-      - echo -e "Setting up sandbox..."
+      - echo -e "Setting up development token server..."
       - platforms: [darwin]
-        cmd: sed -i "" "s/sandboxID = ''/sandboxID = '{{.LIVEKIT_SANDBOX_ID}}'/g" "{{.ROOT_DIR}}/{{.TOKEN_FILE}}"
+        cmd: sed -i "" "s/tokenServerId = ''/tokenServerId = '{{.LIVEKIT_TOKEN_SERVER_ID | default .LIVEKIT_SANDBOX_ID}}'/g" "{{.ROOT_DIR}}/{{.TOKEN_FILE}}"
       - platforms: [linux, windows]
-        cmd: sed -i "s/sandboxID = ''/sandboxID = '{{.LIVEKIT_SANDBOX_ID}}'/g" "{{.ROOT_DIR}}/{{.TOKEN_FILE}}"
+        cmd: sed -i "s/tokenServerId = ''/tokenServerId = '{{.LIVEKIT_TOKEN_SERVER_ID | default .LIVEKIT_SANDBOX_ID}}'/g" "{{.ROOT_DIR}}/{{.TOKEN_FILE}}"
       - echo -e "\nYour React-Native voice assistant is ready to go!\n"
 
       - echo -e "Install the dependencies by running \"npm install\""
