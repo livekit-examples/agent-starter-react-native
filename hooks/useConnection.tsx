@@ -48,7 +48,7 @@ export function ConnectionProvider({ children }: ConnectionProviderProps) {
 
   const tokenSource = useMemo(() => {
     if (sandboxID) {
-      return TokenSource.sandboxTokenServer(sandboxID)
+      return TokenSource.developmentTokenServer(sandboxID)
     } else if (hardcodedUrl && hardcodedToken) {
       return TokenSource.literal(
         {
