@@ -1,6 +1,6 @@
 import { TrackReference, useLocalParticipant } from '@livekit/components-react';
 import { BarVisualizer } from '@livekit/react-native';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import {
   ViewStyle,
   StyleSheet,
@@ -29,21 +29,17 @@ type ControlBarOptions = {
 
 export default function ControlBar({ style = {}, options }: ControlBarProps) {
   const { microphoneTrack, localParticipant } = useLocalParticipant();
-  const [trackRef, setTrackRef] = useState<TrackReference | undefined>(
-    undefined
+  const trackRef = useMemo<TrackReference | undefined>(
+    () =>
+      microphoneTrack
+        ? {
+            participant: localParticipant,
+            publication: microphoneTrack,
+            source: microphoneTrack.source,
+          }
+        : undefined,
+    [microphoneTrack, localParticipant]
   );
-
-  useEffect(() => {
-    if (microphoneTrack) {
-      setTrackRef({
-        participant: localParticipant,
-        publication: microphoneTrack,
-        source: microphoneTrack.source,
-      });
-    } else {
-      setTrackRef(undefined);
-    }
-  }, [microphoneTrack, localParticipant]);
 
   // Images
   let micImage = options.isMicEnabled
