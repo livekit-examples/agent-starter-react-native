@@ -79,8 +79,8 @@ const RoomView = () => {
           source: Track.Source.Camera,
         } satisfies TrackReference)
       : localScreenShareTrack.length > 0 && isScreenShareEnabled
-      ? localScreenShareTrack[0]
-      : null;
+        ? localScreenShareTrack[0]
+        : null;
 
   // Messages
   const { messages, send } = useSessionMessages();
@@ -331,7 +331,7 @@ const useAgentVisualizationPosition = (
 const useLocalVideoPosition = (
   isChatVisible: boolean,
   containerDimens: { width: number; height: number }
-): ViewStyle => {
+): Animated.AnimatedProps<ViewStyle> => {
   const width = useAnimatedValue(
     isChatVisible ? collapsedWidth : expandedLocalWidth
   );
