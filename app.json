@@ -7,11 +7,11 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bitcode": false,
-      "bundleIdentifier": "io.livekit.voiceassistantreactnative"
+      "bundleIdentifier": "io.livekit.voiceassistantreactnative",
+      "appleTeamId": "76TVFCUKK7"
     },
     "android": {
       "adaptiveIcon": {
